@@ -2,12 +2,12 @@
 import 'package:alarm_demo/domain/models/alarm_info/alarm_info.dart';
 import 'package:sqflite/sqflite.dart';
 
-final String tableAlarm = 'alarm';
-final String columnId = 'id';
-final String columnTitle = 'title';
-final String columnDateTime = 'alarmDateTime';
-final String columnPending = 'isPending';
-final String columnColorIndex = 'gradientColorIndex';
+const String tableAlarm = 'alarm';
+const String columnId = 'id';
+const String columnTitle = 'title';
+const String columnDateTime = 'alarmDateTime';
+const String columnPending = 'isPending';
+const String columnColorIndex = 'gradientColorIndex';
 
 class AlarmHelper {
   static Database? _database;

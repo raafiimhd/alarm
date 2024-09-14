@@ -17,8 +17,12 @@ class WeatherService {
           'units': 'metric'
         },
       );
-
-      return LocationModel.fromJson(response.data);
+      if(response.statusCode==200){
+       return LocationModel.fromJson(response.data);
+      }else{
+        throw Exception('Failed to fetch User Loaction');
+      }
+      
     } catch (e) {
       print('Error fetching weather data: $e');
       throw e;
