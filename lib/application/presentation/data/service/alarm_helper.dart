@@ -72,4 +72,13 @@ class AlarmHelper {
     var db = await this.database;
     return await db.delete(tableAlarm, where: '$columnId = ?', whereArgs: [id]);
   }
+  Future<int> updateAlarm(AlarmInfo alarmInfo) async {
+    var db = await this.database;
+    return await db.update(
+      tableAlarm,
+      alarmInfo.toMap(),
+      where: '$columnId = ?',
+      whereArgs: [alarmInfo.id],
+    );
+  }
 }

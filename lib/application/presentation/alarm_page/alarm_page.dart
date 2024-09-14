@@ -1,3 +1,4 @@
+import 'package:alarm_demo/domain/models/alarm_info/alarm_info.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -40,16 +41,18 @@ class AlarmPage extends StatelessWidget {
                 ),
               );
             }),
-           
             Expanded(
               child: Obx(() {
                 return ListView(
                   children: alarmController.alarms.map<Widget>((alarm) {
-                    var alarmTime = DateFormat('hh:mm aa').format(alarm.alarmDateTime!);
-                    var gradientColor = GradientTemplate.gradientTemplate[alarm.gradientColorIndex!].colors;
+                    var alarmTime =
+                        DateFormat('hh:mm aa').format(alarm.alarmDateTime!);
+                    var gradientColor = GradientTemplate
+                        .gradientTemplate[alarm.gradientColorIndex!].colors;
                     return Container(
                       margin: const EdgeInsets.only(bottom: 32),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: gradientColor,
@@ -115,13 +118,86 @@ class AlarmPage extends StatelessWidget {
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              IconButton(
-                                icon: Icon(Icons.delete),
-                                color: Colors.white,
-                                onPressed: () {
-                                  alarmController.deleteAlarm(alarm.id);
-                                },
-                              ),
+                              PopupMenuButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  icon: const Icon(Icons.more_vert,
+                                      color: Colors.black),
+                                  itemBuilder: (context) => [
+                                        PopupMenuItem(
+                                          child: Text('Edit'),
+                                          onTap: () {
+                                            Future.delayed(
+                                              Duration.zero,
+                                              () => showModalBottomSheet(
+                                                context: context,
+                                                builder: (context) {
+                                                  return StatefulBuilder(
+                                                    builder: (context, setModalState) {
+                                                      return Container(
+                                                        padding: const EdgeInsets.all(32),
+                                                        child: Column(
+                                                          children: [
+                                                            // Time picker button
+                                                            TextButton(
+                                                              onPressed: () async {
+                                                                var selectedTime = await showTimePicker(
+                                                                  context: context,
+                                                                  initialTime: TimeOfDay.fromDateTime(alarm.alarmDateTime ?? DateTime.now()),
+                                                                );
+                                                                if (selectedTime != null) {
+                                                                  final now = DateTime.now();
+                                                                  DateTime newAlarmTime = DateTime(
+                                                                    now.year,
+                                                                    now.month,
+                                                                    now.day,
+                                                                    selectedTime.hour,
+                                                                    selectedTime.minute,
+                                                                  );
+                                                                  setModalState(() {});  // Refresh the modal state
+
+                                                                  // Update the alarm's time in the controller
+                                                                  alarmController.updateAlarmTime(newAlarmTime);
+                                                                  // Update the existing alarm in the controller
+                                                                  alarm.alarmDateTime = newAlarmTime;
+                                                                  alarmController.updateExistingAlarm(alarm,alarmController.isRepeatSelected.value);  // Save the updated alarm in the database
+
+                                                                  Get.back();  // Close the modal
+                                                                }
+                                                              },
+                                                              child: Text(
+                                                                DateFormat('HH:mm').format(alarm.alarmDateTime ?? DateTime.now()),
+                                                                style: TextStyle(fontSize: 32),
+                                                              ),
+                                                            ),
+                                                            // Save button
+                                                            FloatingActionButton.extended(
+                                                              onPressed: () {
+                                                                // Save the updated alarm
+                                                                alarmController.updateExistingAlarm(alarm,alarmController.isRepeatSelected.value);
+                                                                Navigator.pop(context);
+                                                              },
+                                                              icon: Icon(Icons.save),
+                                                              label: Text('Update Alarm'),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                        PopupMenuItem(
+                                          child: Text('Delete'),
+                                          onTap: () {
+                                            alarmController.deleteAlarm(alarm.id);
+                                          },
+                                        )
+                                      ])
                             ],
                           ),
                         ],
@@ -153,7 +229,8 @@ class AlarmPage extends StatelessWidget {
                 borderRadius: BorderRadius.all(Radius.circular(24)),
               ),
               child: MaterialButton(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 onPressed: () {
                   alarmController.updateAlarmTime(DateTime.now());
                   showModalBottomSheet(
@@ -161,7 +238,8 @@ class AlarmPage extends StatelessWidget {
                     context: context,
                     clipBehavior: Clip.antiAlias,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(24)),
                     ),
                     builder: (context) {
                       return StatefulBuilder(
@@ -186,7 +264,8 @@ class AlarmPage extends StatelessWidget {
                                           selectedTime.hour,
                                           selectedTime.minute,
                                         );
-                                        alarmController.updateAlarmTime(selectedDateTime);
+                                        alarmController
+                                            .updateAlarmTime(selectedDateTime);
                                       }
                                     },
                                     child: Text(
@@ -200,9 +279,11 @@ class AlarmPage extends StatelessWidget {
                                     title: Text('Repeat'),
                                     trailing: Switch(
                                       onChanged: (value) {
-                                        alarmController.toggleRepeatSelection(value);
+                                        alarmController
+                                            .toggleRepeatSelection(value);
                                       },
-                                      value: alarmController.isRepeatSelected.value,
+                                      value: alarmController
+                                          .isRepeatSelected.value,
                                     ),
                                   );
                                 }),
@@ -216,7 +297,8 @@ class AlarmPage extends StatelessWidget {
                                 ),
                                 FloatingActionButton.extended(
                                   onPressed: () {
-                                    alarmController.onSaveAlarm(alarmController.isRepeatSelected.value);
+                                    alarmController.onSaveAlarm(
+                                        alarmController.isRepeatSelected.value);
                                   },
                                   icon: Icon(Icons.alarm),
                                   label: Text('Save'),
